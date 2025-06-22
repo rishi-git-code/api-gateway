@@ -15,6 +15,15 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    private final JwtReactiveAuthenticationManager authenticationManager;
+    private final JwtSecurityContextRepository securityContextRepository;
+
+    public SecurityConfig(JwtReactiveAuthenticationManager authenticationManager,
+                          JwtSecurityContextRepository securityContextRepository) {
+        this.authenticationManager = authenticationManager;
+        this.securityContextRepository = securityContextRepository;
+    }
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) throws Exception {
 //        http.csrf(AbstractHttpConfigurer::disable)
@@ -28,6 +37,8 @@ public class SecurityConfig {
 //    }
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .securityContextRepository(securityContextRepository)
+                .authenticationManager(authenticationManager)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/api/v1/user/login", "/api/v1/user/register").permitAll()
                         .anyExchange().authenticated()
